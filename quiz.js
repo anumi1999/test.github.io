@@ -1,66 +1,69 @@
 var $progressValue = 0;
 var resultList = [];
-
-
-const quizdata = [
-{
-  question: "Characterized by skill at understanding and profiting by circumstances",
-  options: ["Prescient", "Analyst", "Diminution", "Shrewd"],
-  answer: "Shrewd",
-  category: 1 },
-
-{
-  question: "To refuse to acknowledge as one's own or as connected with oneself",
-  options: ["Prevalent", "Disown", "Squalid", "Employee"],
-  answer: "Disown",
-  category: 2 },
-
-{
-  question: "Not having the abilities desired or necessary for any purpose",
-  options: ["Incompetent", "Impoverish", "Coxswain", "Devious"],
-  answer: "Incompetent",
-  category: 3 },
-
-{
-  question: "Lizard that changes color in different situations",
-  options: ["Scruple", "Depredation", "Chameleon", "Whimsical"],
-  answer: "Chameleon",
-  category: 1 },
-
-{
-  question: "Having the title of an office without the obligations",
-  options: ["Reciprocal", "Unsullied", "Titular", "Inflated"],
-  answer: "Titular",
-  category: 2 },
-
-{
-  question: "An expression of disapproval or blame personally addressed to one censured",
-  options: ["Pitiful", "Reproof", "Mutation", "Raillery"],
-  answer: "Reproof",
-  category: 3 },
-
-{
-  question: "To deliver an elaborate or formal public speech.",
-  options: ["Orate", "Magician", "Access", "Guzzle"],
-  answer: "Orate",
-  category: 2 },
-
-{
-  question: "A wharf or artificial landing-place on the shore of a harbor or projecting into it",
-  options: ["Intolerable", "Quay", "Fez", "Insatiable"],
-  answer: "Quay",
-  category: 3 },
-
-,
-
-];
-
-
+var firebaseConfig = {
+    apiKey: "AIzaSyB-W2AktdEtM7z_KHSWXXT_3PoBoWFdubM",
+    authDomain: "dredu-71835.firebaseapp.com",
+    databaseURL: "https://dredu-71835.firebaseio.com",
+    projectId: "dredu-71835",
+    storageBucket: "dredu-71835.appspot.com",
+    messagingSenderId: "1010179971420",
+    appId: "1:1010179971420:web:d2fc28ac5634b8ee8a0999",
+    measurementId: "G-19Z5Q66FHX"
+  };  
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  firebase.analytics();
+  var database = firebase.database();
+var i = 0;
+var quizdata = [{question : "Verify Human : 2+2 = " , options : ['1' , '2' ,'3' ,'4'] , answer: '4'}];
+var fb_db = firebase.database().ref("users/EEWydIQ4cmhRP1eCZzMKBbHv7Qo1/question_paper/" );
+//function getting(){
+//};     
+function getting(){
+  fb_db.child('q2/').once('value').then(function(snapshot) {
+    console.log("called 3");
+    snapshot.forEach(function(childSnapshot) {
+    var childKey = childSnapshot.key;
+    var childData = childSnapshot.val();
+    console.log(childData.user_name);
+    const title = childData.user_name;
+    const input1 = childData.option_1;
+    const input2 = childData.option_2;
+    const input3 = childData.option_3;
+    const input4 = childData.option_4;
+    const value = childData.correct;
+    quizdata.push({ question: title , options: [input1,input2,input3,input4] , answer: value});
+    console.log(quizdata[i].options);
+    i+=1;
+    console.log(i);
+  }); 
+}); 
+ /* fb_db.child('q2/').once('value' , function(snapshot) {
+    console.log("called 3");
+    snapshot.forEach(function(childSnapshot) {
+    var childKey = childSnapshot.key;
+    var childData = childSnapshot.val();
+    console.log(childData.user_name);
+    const title = childData.user_name;
+    const input1 = childData.option_1;
+    const input2 = childData.option_2;
+    const input3 = childData.option_3;
+    const input4 = childData.option_4;
+    const value = childData.correct;
+    quizdata.push({ question: title , options: [input1,input2,input3,input4] , answer: value});
+    console.log(quizdata[i].options);
+    i+=1;
+    console.log(i);
+  }); 
+}); */
+};   
 /** Random shuffle questions **/
+
 function shuffleArray(question) {
   var shuffled = question.sort(function () {
     return .5 - Math.random();
   });
+  console.log("called");
   return shuffled;
 }
 
@@ -75,6 +78,8 @@ function shuffle(a) {
 
 /*** Return shuffled question ***/
 function generateQuestions() {
+  console.log("called from generate question :");
+  console.log(quizdata.length);
   var questions = shuffleArray(quizdata);
   return questions;
 }
@@ -117,6 +122,8 @@ function renderQuestion(question) {
 
 /** Render quiz :: Question and option **/
 function renderQuiz(questions, index) {
+  console.log("called render quiz");
+
   var currentQuest = questions[index];
   renderQuestion(currentQuest.question);
   renderOptions(currentQuest.options);
@@ -373,14 +380,16 @@ function addClickedAnswerToResult(questions, presentIndex, clicked) {
   console.log("result");
   console.log(result);
 
-}
-
-$(document).ready(function () {
-
+  }
+function loadTest(){
+  console.log("called 2");
+  getting();
   var presentIndex = 0;
   var clicked = 0;
-
+  console.log("called 1 ");
   var questions = generateQuestions();
+  console.log(questions);
+  console.log(questions.length);
   renderQuiz(questions, presentIndex);
   getProgressindicator(questions.length);
 
@@ -404,11 +413,15 @@ $(document).ready(function () {
 
   $("#next").on('click', function (e) {
     e.preventDefault();
-    addClickedAnswerToResult(questions, presentIndex, clicked);
+    if ( presentIndex != 0 ){
+      addClickedAnswerToResult(questions, presentIndex, clicked);
+    }
+    
 
     $(this).addClass("hidden");
 
     presentIndex++;
+    console.log(questions.length);
     renderQuiz(questions, presentIndex);
     changeProgressValue();
   });
@@ -449,10 +462,11 @@ $(document).ready(function () {
     window.location.reload(true);
   });
 
-});
+};
 function startTimer(duration, display) {
     var flag=0 ;
     var timer = duration, hours,minutes, seconds;
+    loadTest();
     var inter=setInterval(function () {
         hours = parseInt(timer /3600 , 10);
         minutes = parseInt(timer / 60, 10);
@@ -499,4 +513,3 @@ function go() {
     startTimer(fiveMinutes, display);
 
 };
-
